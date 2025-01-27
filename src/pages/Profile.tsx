@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { getUserLevel, getUserPurchases, LEVEL_DISCOUNTS, type Purchase, type UserLevel } from '../services/supabase';
+import { Link, useNavigate } from 'react-router-dom';
+import { getUserLevel, getUserPurchases, LEVEL_DISCOUNTS, type Purchase, type UserLevel, supabase } from '../services/supabase';
 
 const Profile = () => {
+    const navigate = useNavigate();
     const [userLevel, setUserLevel] = useState<UserLevel | null>(null);
     const [purchases, setPurchases] = useState<Purchase[]>([]);
     const [loading, setLoading] = useState(true);
@@ -9,12 +11,15 @@ const Profile = () => {
     useEffect(() => {
         const loadUserData = async () => {
             try {
-                const userId = localStorage.getItem('userId');
-                if (!userId) return;
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    navigate('/login');
+                    return;
+                }
 
                 const [level, purchaseHistory] = await Promise.all([
-                    getUserLevel(userId),
-                    getUserPurchases(userId)
+                    getUserLevel(user.id),
+                    getUserPurchases(user.id)
                 ]);
 
                 setUserLevel(level);
@@ -27,7 +32,7 @@ const Profile = () => {
         };
 
         loadUserData();
-    }, []);
+    }, [navigate]);
 
     if (loading) {
         return (
@@ -127,7 +132,15 @@ const Profile = () => {
                     ) : (
                         <p>Nincs még vásárlási előzmény</p>
                     )}
+
+
                 </div>
+                <Link
+                    to="/add-purchase"
+                    className="block w-full bg-blue-600 text-white text-lg py-4 px-6 rounded-lg mb-4 text-center hover:bg-blue-700 transition-colors"
+                >
+                    Add Purchase
+                </Link>
             </div>
         </div>
     );

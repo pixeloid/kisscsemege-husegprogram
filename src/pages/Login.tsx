@@ -1,102 +1,85 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { verifyUser } from '../services/supabase';
-
-interface FormState {
-  phoneNumber: string;
-  pinCode: string;
-  loading: boolean;
-  error: string;
-}
+import { signIn } from '../services/supabase';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const [formState, setFormState] = React.useState<FormState>({
+  const [formData, setFormData] = useState({
     phoneNumber: '',
     pinCode: '',
-    loading: false,
-    error: ''
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormState(prev => ({ ...prev, error: '', loading: true }));
+    setError('');
+    setLoading(true);
 
     try {
-      const user = await verifyUser(formState.phoneNumber, formState.pinCode);
+      const { user } = await signIn(formData.phoneNumber, formData.pinCode);
       if (user) {
-        localStorage.setItem('userId', user.id);
         navigate('/profile');
-      } else {
-        setFormState(prev => ({
-          ...prev,
-          error: 'Érvénytelen telefonszám vagy PIN kód'
-        }));
       }
     } catch (error) {
-      setFormState(prev => ({
-        ...prev,
-        error: 'Hiba történt a bejelentkezés során'
-      }));
+      setError('Érvénytelen telefonszám vagy PIN kód');
     } finally {
-      setFormState(prev => ({ ...prev, loading: false }));
+      setLoading(false);
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormState(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-900 text-white">
+      <div className="w-full max-w-md bg-gray-800 rounded-lg shadow-md p-6">
         <h1 className="text-2xl font-bold text-center mb-6">Bejelentkezés</h1>
 
-        {formState.error && (
-          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
-            {formState.error}
+        {error && (
+          <div className="mb-4 p-3 bg-red-900/50 text-red-200 rounded-lg border border-red-700">
+            {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 font-medium mb-2">
+            <label className="block text-gray-300 font-medium mb-2 text-xl">
               Telefonszám
             </label>
             <input
               type="tel"
               name="phoneNumber"
-              value={formState.phoneNumber}
+              value={formData.phoneNumber}
               onChange={handleInputChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-              placeholder="+36 XX XXX XXXX"
+              className="w-full p-4 border border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 text-xl bg-gray-700 text-white"
               required
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 font-medium mb-2">
+            <label className="block text-gray-300 font-medium mb-2 text-xl">
               PIN kód
             </label>
             <input
               type="password"
               name="pinCode"
-              value={formState.pinCode}
+              value={formData.pinCode}
               onChange={handleInputChange}
-              maxLength={4}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-              placeholder="****"
+              className="w-full p-4 border border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 text-xl bg-gray-700 text-white"
               required
+              maxLength={6}
             />
           </div>
 
           <button
             type="submit"
-            disabled={formState.loading}
-            className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors disabled:bg-green-400"
+            disabled={loading}
+            className="w-full bg-green-600 text-white py-4 rounded-lg text-xl font-bold hover:bg-green-700 transition-colors disabled:bg-green-800 disabled:cursor-not-allowed mt-6"
           >
-            {formState.loading ? 'Bejelentkezés...' : 'Bejelentkezés'}
+            {loading ? 'Bejelentkezés...' : 'Bejelentkezés'}
           </button>
         </form>
       </div>

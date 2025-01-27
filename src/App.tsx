@@ -5,6 +5,7 @@ import Register from './pages/Register';
 import QRCode from './pages/QRCode';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
+import AddPurchase from './pages/AddPurchase';
 
 const App: React.FC = () => (
   <Router>
@@ -15,6 +16,7 @@ const App: React.FC = () => (
         <Route path="/register" element={<Register />} />
         <Route path="/qr-code/:userId" element={<QRCode />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/add-purchase" element={<AddPurchase />} />
       </Routes>
     </div>
   </Router>

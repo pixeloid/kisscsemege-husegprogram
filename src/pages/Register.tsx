@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { registerUser } from '../services/supabase';
+import { signUp } from '../services/supabase';
 import PinInput from 'react-pin-input';
 
 interface RegisterForm {
@@ -23,12 +23,12 @@ const Register: React.FC = () => {
   const onSubmit = async (data: RegisterForm) => {
     try {
       setIsLoading(true);
-      const user = await registerUser(
+      await signUp(
         data.name,
         data.phoneNumber,
         data.pinCode
       );
-      navigate(`/qr-code/${user.id}`);
+      navigate('/login');
     } catch (error) {
       alert('Hiba történt a regisztráció során. Kérjük próbálja újra!');
     } finally {
@@ -56,7 +56,13 @@ const Register: React.FC = () => {
         <div>
           <label className="block text-gray-300 font-medium mb-2 text-xl">Telefonszám</label>
           <input
-            {...register('phoneNumber', { required: 'A telefonszám megadása kötelező' })}
+            {...register('phoneNumber', {
+              required: 'A telefonszám megadása kötelező',
+              pattern: {
+                value: /^[0-9+\s-()]*$/,
+                message: 'Érvénytelen telefonszám formátum'
+              }
+            })}
             className="w-full p-4 border border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 text-xl bg-gray-800 text-white"
             placeholder="Add meg a telefonszámod"
           />
