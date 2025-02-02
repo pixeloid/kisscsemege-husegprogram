@@ -31,7 +31,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: `http://localhost:${PORT}`,
+        url: `https://kisscsemege-husegprogram.onrender.com:${PORT}`,
       },
     ],
   },
