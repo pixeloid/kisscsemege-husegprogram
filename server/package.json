@@ -20,6 +20,8 @@
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
+    "@supabase/supabase-js": "^2.48.1",
+    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.13.0",
     "@types/swagger-jsdoc": "^6.0.4",
