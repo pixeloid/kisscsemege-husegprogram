@@ -1,4 +1,3 @@
-
 /// <reference types="vite/client" />
 
 
@@ -99,6 +98,17 @@ export async function addPurchase(userId: string, totalAmount: number, items: Ar
 
 export async function getUserDataByBarcode(barcode: string) {
   const response = await fetch(`${API_URL}/barcode/${barcode}`);
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message);
+  }
+
+  return response.json();
+}
+
+export async function getAllUsers() {
+  const response = await fetch(`${API_URL}/users`);
 
   if (!response.ok) {
     const error = await response.json();

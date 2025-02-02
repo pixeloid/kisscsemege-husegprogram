@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import * as api from '../services/api';
 
 const AddPurchase = () => {
+    const { userId: userIdFromUrl } = useParams<{ userId?: string }>();
     const navigate = useNavigate();
     const [items, setItems] = useState([{ name: '', quantity: 1, price: 0, item_code: '' }]);
     const [receiptNumber, setReceiptNumber] = useState('');
@@ -33,11 +34,16 @@ const AddPurchase = () => {
         setLoading(true);
 
         try {
-            const userId = localStorage.getItem('userId');
-            await api.addPurchase(userId!, totalAmount, items, receiptNumber);
+            const userId = userIdFromUrl || localStorage.getItem('userId');
+            if (!userId) {
+                navigate('/login');
+                return;
+            }
+
+            await api.addPurchase(userId, totalAmount, items, receiptNumber);
             navigate('/profile');
         } catch (error) {
-            console.error('Error adding purchase:', error);
+            console.error('Hiba a vásárlás hozzáadása során:', error);
         } finally {
             setLoading(false);
         }
@@ -46,9 +52,9 @@ const AddPurchase = () => {
     return (
         <div className="min-h-screen flex items-center justify-center p-4">
             <form onSubmit={handleSubmit} className="w-full max-w-lg bg-white p-8 rounded-lg shadow-md">
-                <h2 className="text-2xl font-bold mb-6">Add Purchase</h2>
+                <h2 className="text-2xl font-bold mb-6">Vásárlás hozzáadása</h2>
                 <div className="mb-4">
-                    <label className="block text-gray-700">Receipt Number</label>
+                    <label className="block text-gray-700">Nyugtaszám</label>
                     <input
                         type="text"
                         value={receiptNumber}
@@ -58,12 +64,12 @@ const AddPurchase = () => {
                     />
                 </div>
                 <div className="mb-4">
-                    <label className="block text-gray-700">Items</label>
+                    <label className="block text-gray-700">Tételek</label>
                     {items.map((item, index) => (
                         <div key={index} className="flex space-x-2 mt-2">
                             <input
                                 type="text"
-                                placeholder="Name"
+                                placeholder="Név"
                                 value={item.name}
                                 onChange={(e) => handleItemChange(index, 'name', e.target.value)}
                                 className="w-1/4 p-2 border rounded-lg"
@@ -71,7 +77,7 @@ const AddPurchase = () => {
                             />
                             <input
                                 type="number"
-                                placeholder="Quantity"
+                                placeholder="Mennyiség"
                                 value={item.quantity}
                                 onChange={(e) => handleItemChange(index, 'quantity', Number(e.target.value))}
                                 className="w-1/4 p-2 border rounded-lg"
@@ -79,7 +85,7 @@ const AddPurchase = () => {
                             />
                             <input
                                 type="number"
-                                placeholder="Price"
+                                placeholder="Ár"
                                 value={item.price}
                                 onChange={(e) => handleItemChange(index, 'price', Number(e.target.value))}
                                 className="w-1/4 p-2 border rounded-lg"
@@ -87,7 +93,7 @@ const AddPurchase = () => {
                             />
                             <input
                                 type="text"
-                                placeholder="Item Code"
+                                placeholder="Cikkszám"
                                 value={item.item_code}
                                 onChange={(e) => handleItemChange(index, 'item_code', e.target.value)}
                                 className="w-1/4 p-2 border rounded-lg"
@@ -96,11 +102,11 @@ const AddPurchase = () => {
                         </div>
                     ))}
                     <button type="button" onClick={handleAddItem} className="mt-2 text-green-600 hover:text-green-700">
-                        Add Item
+                        Tétel hozzáadása
                     </button>
                 </div>
                 <div className="mb-4">
-                    <label className="block text-gray-700">Total Amount</label>
+                    <label className="block text-gray-700">Összeg</label>
                     <input
                         type="number"
                         value={totalAmount}
@@ -109,7 +115,7 @@ const AddPurchase = () => {
                     />
                 </div>
                 <button type="submit" className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700" disabled={loading}>
-                    {loading ? 'Adding...' : 'Add Purchase'}
+                    {loading ? 'Hozzáadás...' : 'Hozzáadás'}
                 </button>
             </form>
         </div>

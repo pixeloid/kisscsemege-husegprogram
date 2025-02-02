@@ -555,7 +555,7 @@ app.get('/api/users', async (req, res) => {
   try {
     const { data: users, error: usersError } = await supabase
       .from('user_profiles')
-      .select('user_id, name, phone_number');
+      .select('user_id, name, phone_number, barcode');
 
     if (usersError) throw usersError;
 

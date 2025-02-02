@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import * as api from '../services/api';
 import type { Purchase, UserLevel, UserProfile } from '../types';
 import { LEVEL_DISCOUNTS } from '../constants';
 
 const Profile = () => {
+    const { userId: userIdFromUrl } = useParams<{ userId?: string }>();
     const navigate = useNavigate();
     const [userLevel, setUserLevel] = useState<UserLevel | null>(null);
     const [purchases, setPurchases] = useState<Purchase[]>([]);
@@ -14,7 +15,7 @@ const Profile = () => {
     useEffect(() => {
         const loadUserData = async () => {
             try {
-                const userId = localStorage.getItem('userId');
+                const userId = userIdFromUrl || localStorage.getItem('userId');
                 if (!userId) {
                     navigate('/login');
                     return;
@@ -30,14 +31,14 @@ const Profile = () => {
                 setUserLevel(level);
                 setPurchases(purchaseHistory);
             } catch (error) {
-                console.error('Error loading user data:', error);
+                console.error('Hiba a felhasználói adatok betöltése során:', error);
             } finally {
                 setLoading(false);
             }
         };
 
         loadUserData();
-    }, [navigate]);
+    }, [navigate, userIdFromUrl]);
 
     if (loading) {
         return (
@@ -61,7 +62,7 @@ const Profile = () => {
                                     <p className="text-gray-600">{userProfile.phone_number}</p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-lg font-semibold">Barcode: {userProfile.barcode}</p>
+                                    <p className="text-lg font-semibold">Vonalkód: {userProfile.barcode}</p>
                                 </div>
                             </div>
                         </div>
@@ -162,7 +163,7 @@ const Profile = () => {
                     to="/add-purchase"
                     className="block w-full bg-blue-600 text-white text-lg py-4 px-6 rounded-lg mb-4 text-center hover:bg-blue-700 transition-colors"
                 >
-                    Add Purchase
+                    Vásárlás hozzáadása
                 </Link>
             </div>
         </div>

@@ -56,7 +56,6 @@ const QRCodePage: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-900 text-white">
       <div className="bg-white text-black p-4 rounded-lg shadow-lg" style={{ width: '350px', height: '200px' }}>
         <div className="text-center mb-2">
-          <img src="/path/to/logo.png" alt="Kiss Csemege Logo" className="mx-auto mb-2" style={{ width: '50px' }} />
           <h1 className="text-xl font-bold">Kiss Csemege</h1>
           <p className="text-sm">Törzsvásárlói kártya</p>
         </div>
@@ -64,7 +63,7 @@ const QRCodePage: React.FC = () => {
           <p className="text-lg font-semibold">{state.user.name}</p>
         </div>
         <div className="flex justify-center">
-          <Barcode value={state.user.id} width={1} height={50} fontSize={12} />
+          <Barcode value={state.user.barcode} width={1} height={50} fontSize={12} />
         </div>
       </div>
     </div>
