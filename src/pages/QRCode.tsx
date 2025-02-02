@@ -1,19 +1,22 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import Barcode from 'react-barcode';
-import { supabase } from '../services/supabase';
-import type { User } from '../services/supabase';
+import * as api from '../services/api';
+import type { UserProfile } from '../types';
+import logo from '../../assets/logo.png';
 
 interface QRCodeState {
-  user: User | null;
+  user: UserProfile | null;
   loading: boolean;
+  error: string;
 }
 
 const QRCodePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const [state, setState] = React.useState<QRCodeState>({
     user: null,
-    loading: true
+    loading: true,
+    error: ''
   });
 
   React.useEffect(() => {
@@ -21,16 +24,11 @@ const QRCodePage: React.FC = () => {
       if (!userId) return;
 
       try {
-        const { data, error } = await supabase
-          .from('users')
-          .select()
-          .eq('id', userId)
-          .single();
-
-        if (error) throw error;
+        const data = await api.getUserProfile(userId);
         setState(prev => ({ ...prev, user: data }));
       } catch (error) {
         console.error('Error fetching user:', error);
+        setState(prev => ({ ...prev, error: 'Felhasználó nem található' }));
       } finally {
         setState(prev => ({ ...prev, loading: false }));
       }
@@ -47,10 +45,9 @@ const QRCodePage: React.FC = () => {
     );
   }
 
-  if (!state.user) {
+  if (state.error || !state.user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl text-red-600">Felhasználó nem található</p>
       </div>
     );
   }

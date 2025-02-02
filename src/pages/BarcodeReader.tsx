@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getUserDataByBarcode } from '../services/supabase';
+import { getUserDataByBarcode } from '../services/api';
 
 interface UserProfile {
     id: string;

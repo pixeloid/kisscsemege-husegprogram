@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getUserLevel, getUserPurchases, getUserProfile, LEVEL_DISCOUNTS, type Purchase, type UserLevel, type UserProfile, supabase } from '../services/supabase';
+import * as api from '../services/api';
+import type { Purchase, UserLevel, UserProfile } from '../types';
+import { LEVEL_DISCOUNTS } from '../constants';
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -12,16 +14,16 @@ const Profile = () => {
     useEffect(() => {
         const loadUserData = async () => {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) {
+                const userId = localStorage.getItem('userId');
+                if (!userId) {
                     navigate('/login');
                     return;
                 }
 
                 const [profile, level, purchaseHistory] = await Promise.all([
-                    getUserProfile(user.id),
-                    getUserLevel(user.id),
-                    getUserPurchases(user.id)
+                    api.getUserProfile(userId),
+                    api.getUserLevel(userId),
+                    api.getUserPurchases(userId)
                 ]);
 
                 setUserProfile(profile);

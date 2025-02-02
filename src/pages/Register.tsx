@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { signUp } from '../services/supabase';
+import * as api from '../services/api';
 import PinInput from 'react-pin-input';
 
 interface RegisterForm {
@@ -23,7 +23,7 @@ const Register: React.FC = () => {
   const onSubmit = async (data: RegisterForm) => {
     try {
       setIsLoading(true);
-      await signUp(
+      await api.signUp(
         data.name,
         data.phoneNumber,
         data.pinCode

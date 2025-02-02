@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addPurchase, supabase } from '../services/supabase';
+import * as api from '../services/api';
 
 const AddPurchase = () => {
     const navigate = useNavigate();
@@ -33,13 +33,8 @@ const AddPurchase = () => {
         setLoading(true);
 
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                navigate('/login');
-                return;
-            }
-
-            await addPurchase(user.id, totalAmount, items, receiptNumber);
+            const userId = localStorage.getItem('userId');
+            await api.addPurchase(userId!, totalAmount, items, receiptNumber);
             navigate('/profile');
         } catch (error) {
             console.error('Error adding purchase:', error);

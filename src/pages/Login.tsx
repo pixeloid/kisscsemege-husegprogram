@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signIn } from '../services/supabase';
+import * as api from '../services/api';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -17,8 +17,9 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      const { user } = await signIn(formData.phoneNumber, formData.pinCode);
+      const { user } = await api.signIn(formData.phoneNumber, formData.pinCode);
       if (user) {
+        localStorage.setItem('userId', user.id);
         navigate('/profile');
       }
     } catch (error) {
