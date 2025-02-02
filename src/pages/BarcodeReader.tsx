@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { getUserDataByBarcode } from '../services/api';
 
 interface UserProfile {
-    id: string;
+    user_id: string;
     name: string;
     points: number;
 }
@@ -42,7 +42,7 @@ const BarcodeReader: React.FC = () => {
                 </button>
                 {userData && (
                     <div className="mt-6">
-                        <p>User ID: {userData.id}</p>
+                        <p>User ID: {userData.user_id}</p>
                         <p>Name: {userData.name}</p>
                         <p>Points: {userData.points}</p>
                     </div>

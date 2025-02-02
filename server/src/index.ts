@@ -31,7 +31,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: `https://kisscsemege-husegprogram.onrender.com`,
+        url: process.env.URL || `https://kisscsemege-husegprogram.onrender.com`,
       },
     ],
   },
@@ -275,6 +275,71 @@ app.get('/api/users/:userId/level', async (req, res) => {
   }
 });
 
+// Points modification route
+/**
+ * @swagger
+ * /api/users/{userId}/points:
+ *   post:
+ *     summary: Modify user points
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               points:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: User points modified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 newPoints:
+ *                   type: integer
+ *       500:
+ *         description: Internal server error
+ */
+app.post('/api/users/:userId/points', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { points } = req.body;
+
+    const { data: userLevel, error: userLevelError } = await supabase
+      .from('user_levels')
+      .select('points')
+      .eq('user_id', userId)
+      .single();
+
+    if (userLevelError) throw userLevelError;
+
+    const newPoints = userLevel.points + points;
+
+    const { error: updateError } = await supabase
+      .from('user_levels')
+      .update({ points: newPoints })
+      .eq('user_id', userId);
+
+    if (updateError) throw updateError;
+
+    res.json({ success: true, newPoints });
+  } catch (error) {
+    const err = error as Error;
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Purchase routes
 /**
  * @swagger
@@ -307,6 +372,7 @@ app.get('/api/users/:userId/level', async (req, res) => {
  *                     type: array
  *                     items:
  *                       type: object
+ *                     description: Array of { name: '', quantity: 1, price: 0, item_code: '' }
  *                   receipt_number:
  *                     type: string
  *                   purchase_date:
@@ -431,6 +497,93 @@ app.get('/api/barcode/:barcode', async (req, res) => {
     } else {
       res.status(404).json({ error: 'User not found' });
     }
+  } catch (error) {
+    const err = error as Error;
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get all users with profile, points, and purchases
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: Get all users with profile, points, and purchases
+ *     responses:
+ *       200:
+ *         description: Users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   user_id:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                   phone_number:
+ *                     type: string
+ *                   points:
+ *                     type: number
+ *                   purchases:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         total_amount:
+ *                           type: number
+ *                         items:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                         receipt_number:
+ *                           type: string
+ *                         purchase_date:
+ *                           type: string
+ *                           format: date-time
+ *                         created_at:
+ *                           type: string
+ *                           format: date-time
+ *       500:
+ *         description: Internal server error
+ */
+app.get('/api/users', async (req, res) => {
+  try {
+    const { data: users, error: usersError } = await supabase
+      .from('user_profiles')
+      .select('user_id, name, phone_number');
+
+    if (usersError) throw usersError;
+
+    const usersWithDetails = await Promise.all(users.map(async (user) => {
+      const { data: pointsData, error: pointsError } = await supabase
+        .from('user_levels')
+        .select('points')
+        .eq('user_id', user.user_id)
+        .single();
+
+      if (pointsError) throw pointsError;
+
+      const { data: purchasesData, error: purchasesError } = await supabase
+        .from('purchases')
+        .select()
+        .eq('user_id', user.user_id)
+        .order('purchase_date', { ascending: false });
+
+      if (purchasesError) throw purchasesError;
+
+      return {
+        ...user,
+        points: pointsData.points,
+        purchases: purchasesData
+      };
+    }));
+
+    res.json(usersWithDetails);
   } catch (error) {
     const err = error as Error;
     res.status(500).json({ error: err.message });
