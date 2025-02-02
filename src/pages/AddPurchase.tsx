@@ -1,15 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addPurchase, supabase } from '../services/supabase';
 
 const AddPurchase = () => {
     const navigate = useNavigate();
+    const [items, setItems] = useState([{ name: '', quantity: 1, price: 0, item_code: '' }]);
+    const [receiptNumber, setReceiptNumber] = useState('');
     const [totalAmount, setTotalAmount] = useState(0);
-    const [items, setItems] = useState([{ name: '', quantity: 1, price: 0 }]);
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        const calculateTotalAmount = () => {
+            const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            setTotalAmount(total);
+        };
+
+        calculateTotalAmount();
+    }, [items]);
+
     const handleAddItem = () => {
-        setItems([...items, { name: '', quantity: 1, price: 0 }]);
+        setItems([...items, { name: '', quantity: 1, price: 0, item_code: '' }]);
     };
 
     const handleItemChange = (index: number, field: string, value: string | number) => {
@@ -29,7 +39,7 @@ const AddPurchase = () => {
                 return;
             }
 
-            await addPurchase(user.id, totalAmount, items);
+            await addPurchase(user.id, totalAmount, items, receiptNumber);
             navigate('/profile');
         } catch (error) {
             console.error('Error adding purchase:', error);
@@ -43,11 +53,11 @@ const AddPurchase = () => {
             <form onSubmit={handleSubmit} className="w-full max-w-lg bg-white p-8 rounded-lg shadow-md">
                 <h2 className="text-2xl font-bold mb-6">Add Purchase</h2>
                 <div className="mb-4">
-                    <label className="block text-gray-700">Total Amount</label>
+                    <label className="block text-gray-700">Receipt Number</label>
                     <input
-                        type="number"
-                        value={totalAmount}
-                        onChange={(e) => setTotalAmount(Number(e.target.value))}
+                        type="text"
+                        value={receiptNumber}
+                        onChange={(e) => setReceiptNumber(e.target.value)}
                         className="w-full mt-2 p-2 border rounded-lg"
                         required
                     />
@@ -61,7 +71,7 @@ const AddPurchase = () => {
                                 placeholder="Name"
                                 value={item.name}
                                 onChange={(e) => handleItemChange(index, 'name', e.target.value)}
-                                className="w-1/2 p-2 border rounded-lg"
+                                className="w-1/4 p-2 border rounded-lg"
                                 required
                             />
                             <input
@@ -80,11 +90,28 @@ const AddPurchase = () => {
                                 className="w-1/4 p-2 border rounded-lg"
                                 required
                             />
+                            <input
+                                type="text"
+                                placeholder="Item Code"
+                                value={item.item_code}
+                                onChange={(e) => handleItemChange(index, 'item_code', e.target.value)}
+                                className="w-1/4 p-2 border rounded-lg"
+                                required
+                            />
                         </div>
                     ))}
                     <button type="button" onClick={handleAddItem} className="mt-2 text-green-600 hover:text-green-700">
                         Add Item
                     </button>
+                </div>
+                <div className="mb-4">
+                    <label className="block text-gray-700">Total Amount</label>
+                    <input
+                        type="number"
+                        value={totalAmount}
+                        readOnly
+                        className="w-full mt-2 p-2 border rounded-lg"
+                    />
                 </div>
                 <button type="submit" className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700" disabled={loading}>
                     {loading ? 'Adding...' : 'Add Purchase'}

@@ -11,10 +11,15 @@
     "lib": ["ESNext", "dom"],
     "baseUrl": ".",
     "paths": {
-      "~/*": ["src/*"],
-      "@/*": ["src/*"]
-    }
+      "~/*": ["./src/*"],
+      "@/*": ["./src/*"]
+    },
+    "outDir": "./dist",
+    "rootDir": "./",
+    "allowSyntheticDefaultImports": true
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "platforms"]
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": ["node_modules", "platforms", "server"]
 }

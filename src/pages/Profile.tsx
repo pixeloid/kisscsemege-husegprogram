@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getUserLevel, getUserPurchases, LEVEL_DISCOUNTS, type Purchase, type UserLevel, supabase } from '../services/supabase';
+import { getUserLevel, getUserPurchases, getUserProfile, LEVEL_DISCOUNTS, type Purchase, type UserLevel, type UserProfile, supabase } from '../services/supabase';
 
 const Profile = () => {
     const navigate = useNavigate();
     const [userLevel, setUserLevel] = useState<UserLevel | null>(null);
     const [purchases, setPurchases] = useState<Purchase[]>([]);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -17,11 +18,13 @@ const Profile = () => {
                     return;
                 }
 
-                const [level, purchaseHistory] = await Promise.all([
+                const [profile, level, purchaseHistory] = await Promise.all([
+                    getUserProfile(user.id),
                     getUserLevel(user.id),
                     getUserPurchases(user.id)
                 ]);
 
+                setUserProfile(profile);
                 setUserLevel(level);
                 setPurchases(purchaseHistory);
             } catch (error) {
@@ -45,6 +48,26 @@ const Profile = () => {
     return (
         <div className="min-h-screen bg-gray-100 py-8 px-4">
             <div className="max-w-4xl mx-auto space-y-8">
+                {/* User Profile Information */}
+                <div className="bg-white rounded-lg shadow-md p-6">
+                    <h2 className="text-2xl font-bold mb-4">Profil Információk</h2>
+                    {userProfile ? (
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-lg font-semibold">{userProfile.name}</p>
+                                    <p className="text-gray-600">{userProfile.phone_number}</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-lg font-semibold">Barcode: {userProfile.barcode}</p>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <p>Nincs elérhető profil információ</p>
+                    )}
+                </div>
+
                 {/* Level Information */}
                 <div className="bg-white rounded-lg shadow-md p-6">
                     <h2 className="text-2xl font-bold mb-4">Hűségprogram Státusz</h2>
@@ -132,8 +155,6 @@ const Profile = () => {
                     ) : (
                         <p>Nincs még vásárlási előzmény</p>
                     )}
-
-
                 </div>
                 <Link
                     to="/add-purchase"

@@ -170,7 +170,7 @@ export async function getUserPurchases(userId: string): Promise<Purchase[]> {
   }
 }
 
-export async function addPurchase(userId: string, totalAmount: number, items: Array<{ name: string, quantity: number, price: number }>) {
+export async function addPurchase(userId: string, totalAmount: number, items: Array<{ name: string, quantity: number, price: number }>, receiptNumber: string) {
   try {
     const { error } = await supabase
       .from('purchases')
@@ -188,3 +188,18 @@ export async function addPurchase(userId: string, totalAmount: number, items: Ar
     throw error;
   }
 }
+export const getUserDataByBarcode = async (barcode: string) => {
+
+  try {
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .select()
+      .eq('barcode', barcode)
+      .single();
+
+  } catch (error) {
+    console.error('Error adding purchase:', error);
+    throw error;
+  }
+
+};
