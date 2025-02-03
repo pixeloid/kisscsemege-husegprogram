@@ -31,3 +31,5 @@ services:
 networks:
   caddy_net:
     external: true
+  monitoring:
+    external: true
