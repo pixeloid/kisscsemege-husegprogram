@@ -10,6 +10,7 @@ services:
       - NODE_ENV=production
     networks:
       - caddy_net
+      - monitoring
 
   server:
     container_name: kisscsemege-server
@@ -25,6 +26,7 @@ services:
       - .env
     networks:
       - caddy_net
+      - monitoring
 
 networks:
   caddy_net:
