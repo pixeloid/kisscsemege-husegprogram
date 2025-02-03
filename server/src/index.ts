@@ -31,7 +31,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: process.env.URL || `https://kisscsemege-husegprogram.onrender.com`,
+        url: process.env.API_URL || `https://kisscsemege-husegprogram.onrender.com`,
       },
     ],
   },
