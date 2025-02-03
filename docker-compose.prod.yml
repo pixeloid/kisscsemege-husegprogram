@@ -2,22 +2,22 @@ version: '3.8'
 
 services:
   frontend:
+    containsr_name: kisscsemege-frontend
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    ports:
-      - "5174:80"
     volumes:
       - ./dist:/usr/share/caddy
     environment:
       - NODE_ENV=production
+    networks:
+      - caddy_net
 
   server:
+    containsr_name: kisscsemege-server
     build:
       context: ./server
       dockerfile: Dockerfile.server
-    ports:
-      - "5100:5100"
     environment:
       - NODE_ENV=production
       - SUPABASE_URL=${SUPABASE_URL}
@@ -25,18 +25,10 @@ services:
       - PORT=5100
     env_file:
       - .env
+    networks:
+      - caddy_net
 
-  caddy:
-    image: caddy:latest
-    ports:
-      - "8080:80"
-      - "8443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - ./dist:/usr/share/caddy
-    env_file:
-      - .env
-    depends_on:
-      - frontend
-      - server
-    
+  networks:
+    default:
+      external:
+        name: caddy_net
