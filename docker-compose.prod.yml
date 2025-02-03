@@ -8,6 +8,8 @@ services:
       - ./dist:/usr/share/caddy
     environment:
       - NODE_ENV=production
+    env_file:
+      - .env
     networks:
       - caddy_net
       - monitoring
