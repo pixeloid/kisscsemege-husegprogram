@@ -1,6 +1,6 @@
 services:
   frontend:
-    containsr_name: kisscsemege-frontend
+    container_name: kisscsemege-frontend
     build:
       context: .
       dockerfile: Dockerfile.frontend
@@ -12,7 +12,7 @@ services:
       - caddy_net
 
   server:
-    containsr_name: kisscsemege-server
+    container_name: kisscsemege-server
     build:
       context: ./server
       dockerfile: Dockerfile.server
