@@ -27,6 +27,5 @@ services:
       - caddy_net
 
   networks:
-    default:
-      external:
-        name: caddy_net
+    caddy_net:
+      external: true
