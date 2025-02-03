@@ -1,0 +1,13 @@
+{
+  email your-email@example.com
+}
+
+{$FRONTEND_URL} {
+  reverse_proxy frontend:80
+  try_files {path} {path}/ /index.html
+  file_server
+}
+
+{$API_URL} {
+  reverse_proxy server:5100
+}

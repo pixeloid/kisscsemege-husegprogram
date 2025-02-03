@@ -372,7 +372,6 @@ app.post('/api/users/:userId/points', async (req, res) => {
  *                     type: array
  *                     items:
  *                       type: object
- *                     description: Array of { name: '', quantity: 1, price: 0, item_code: '' }
  *                   receipt_number:
  *                     type: string
  *                   purchase_date:
